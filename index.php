@@ -2,14 +2,13 @@
 // File upload script + webhook handler
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Check if it's a webhook
+    // Handle webhook first
     if (isset($_GET['webhook'])) {
-        // Handle webhook here
         $input = file_get_contents("php://input");
 
         $payload = json_decode($input, true);
         if ($payload) {
-            // Do something with webhook data
+            // Store webhook data
             file_put_contents("webhook.log", print_r($payload, true), FILE_APPEND);
             http_response_code(200);
             echo "Webhook received.";
@@ -19,11 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo "Invalid webhook.";
             exit;
         }
-    } 
-    // Otherwise handle file upload
+    }
+    // Handle file upload
     else if (isset($_FILES['file'])) {
         $filename = basename($_FILES['file']['name']);
         $temp = $_FILES['file']['tmp_name'];
+
         if (move_uploaded_file($temp, "uploads/" . $filename)) {
             echo "<p>File successfully uploaded. File URL: <a href='/uploads/$filename'>/uploads/$filename</a></p>";
         } else {
